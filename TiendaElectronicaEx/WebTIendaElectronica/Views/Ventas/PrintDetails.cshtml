@@ -1,0 +1,200 @@
+﻿@model WebTIendaElectronica.Models.Ventum
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Imprimir Venta #@Model.Id</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9Huif+jN6jIeHz" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* More modern font */
+            margin: 20mm; /* Standard print margin */
+            -webkit-print-color-adjust: exact; /* Ensures background colors/images are printed */
+            print-color-adjust: exact;
+            color: #333; /* Darker text for readability */
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            border: 1px solid #cce5ff; /* Light blue border */
+            border-radius: .5rem; /* Slightly rounded corners */
+            padding: 30px; /* Increased padding */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow */
+            background-color: #ffffff; /* Ensure white background */
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: #0056b3; /* Darker blue for headings */
+            text-align: center;
+            margin-bottom: 1.5rem; /* Increased margin below headings */
+            font-weight: 600; /* Slightly bolder headings */
+        }
+
+        hr {
+            border-top: 1px solid #b3d7ff; /* Light blue hr */
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .row strong {
+            color: #555; /* Slightly muted bold text */
+        }
+
+        .table {
+            margin-top: 25px; /* More space above table */
+            border-color: #a7d9ff; /* Light blue table borders */
+        }
+
+            .table thead th {
+                background-color: #e9f5ff; /* Light blue header background */
+                color: #004085; /* Dark blue text for headers */
+                border-color: #a7d9ff;
+                padding: .75rem; /* Standard padding */
+            }
+
+            .table tbody td {
+                border-color: #a7d9ff;
+                padding: .75rem;
+            }
+
+            .table tfoot td {
+                background-color: #f0f8ff; /* Very light blue footer */
+                border-top: 2px solid #0056b3; /* Stronger border for total */
+                font-size: 1.1em; /* Slightly larger total font */
+            }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem !important; /* Adjust spacing using Bootstrap classes */
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+
+        .signature-line {
+            margin-top: 60px; /* More space above signature line */
+            text-align: center;
+            border-top: 1px solid #666; /* Darker line */
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+            padding-top: 8px; /* More padding above text */
+            color: #444; /* Signature text color */
+        }
+
+        /* Hide elements not needed for print */
+        @@media print {
+            body {
+                margin: 0;
+            }
+
+            .container {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+                max-width: none;
+                border-radius: 0; /* No rounded corners on print */
+            }
+
+            hr {
+                border-top: 1px dashed #ccc; /* Lighter dashed line for print */
+            }
+
+            .table thead th, .table tbody td, .table tfoot td {
+                border-color: #ccc !important; /* Lighter borders on print */
+            }
+
+            .table tfoot td {
+                border-top: 2px solid #666 !important; /* Darker border for total on print */
+            }
+        }
+    </style>
+</head>
+<body onload="window.print();">
+
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2>Tienda Electrónica XYZ</h2>
+            <h4>Recibo de Venta</h4>
+            <p>Fecha de Impresión: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+
+        <hr />
+
+        <div class="row mb-3">
+            <div class="col-6">
+                <strong>No. de Transacción:</strong> @Html.DisplayFor(model => model.Transaccion)<br />
+                <strong>Fecha de Venta:</strong> @Html.DisplayFor(model => model.Fecha)<br />
+            </div>
+            <div class="col-6 text-right">
+                <strong>ID Venta:</strong> @Html.DisplayFor(model => model.Id)<br />
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-6">
+                <strong>Cliente:</strong> @Html.DisplayFor(model => model.IdClienteNavigation.NombreCompleto)<br />
+            </div>
+            <div class="col-6 text-right">
+                <strong>Atendido por:</strong> @Html.DisplayFor(model => model.IdEmpleadoNavigation.Nombres) @Html.DisplayFor(model => model.IdEmpleadoNavigation.PrimerApellido) @Html.DisplayFor(model => model.IdEmpleadoNavigation.SegundoApellido)<br />
+            </div>
+        </div>
+
+        <hr />
+
+        <h5>Detalles del Producto</h5>
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th class="text-right">Cantidad</th>
+                    <th class="text-right">P. Unitario</th>
+                    <th class="text-right">Total Item</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@Html.DisplayFor(model => model.IdProductoNavigation.Descripcion)</td>
+                    <td class="text-right">1</td>
+                    <td class="text-right">@Html.DisplayFor(model => model.IdProductoNavigation.PrecioVenta)</td>
+                    <td class="text-right">@Html.DisplayFor(model => model.Total)</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-right"><strong>TOTAL VENTA:</strong></td>
+                    <td class="text-right"><strong>@Html.DisplayFor(model => model.Total)</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <hr />
+
+        <div class="row">
+            <div class="col-12 text-center">
+                <p>¡Gracias por su compra!</p>
+                <p>Visítenos de nuevo.</p>
+            </div>
+        </div>
+
+        <div class="signature-line">
+            Firma Cliente
+        </div>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+﻿@model WebTIendaElectronica.Models.Ventum
+
+@{
+    ViewData["Title"] = "Detalles de Venta"; // Set the title for the browser tab
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* Custom styles for the details view */
+    .card-custom {
+        border: 1px solid #e0e6ed; /* Light border color */
+        border-radius: 0.5rem; /* Rounded corners */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05); /* Subtle shadow */
+        margin-top: 2rem; /* Space from the top */
+        background-color: #fff; /* White background */
+    }
+
+    .card-header-custom {
+        background-color: #007bff; /* Primary blue for header */
+        color: white; /* White text for header */
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(0, 0, 0, .125);
+        border-top-left-radius: calc(0.5rem - 1px);
+        border-top-right-radius: calc(0.5rem - 1px);
+        font-size: 1.25rem; /* Larger font for header */
+        font-weight: 600; /* Semi-bold header */
+    }
+
+    .table-details th {
+        width: 30%; /* Adjust label column width */
+        text-align: right; /* Align labels to the right */
+        padding-right: 15px; /* Space between label and value */
+        font-weight: 600; /* Bolder labels */
+        color: #495057; /* Darker gray for labels */
+    }
+
+    .table-details td {
+        width: 70%; /* Adjust value column width */
+        color: #343a40; /* Darker text for values */
+    }
+
+    .action-links {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef; /* Light gray separator */
+        display: flex; /* Use flexbox for button alignment */
+        gap: 10px; /* Space between buttons */
+        justify-content: flex-start; /* Align buttons to the start */
+    }
+</style>
+
+<div class="container py-4">
+    <h1 class="text-center mb-4" style="color: #007bff;">@ViewData["Title"]</h1>
+
+    <div class="card card-custom">
+        <div class="card-header card-header-custom">
+            Información de la Venta #@Model.Id
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm table-details">
+                <tbody>
+                    <tr>
+                        <th scope="row">@Html.DisplayNameFor(model => model.Transaccion)</th>
+                        <td>@Html.DisplayFor(model => model.Transaccion)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">@Html.DisplayNameFor(model => model.Fecha)</th>
+                        <td>@Html.DisplayFor(model => model.Fecha)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">@Html.DisplayNameFor(model => model.Total)</th>
+                        <td>@Html.DisplayFor(model => model.Total)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Cliente</th> 
+                        <td>@Html.DisplayFor(model => model.IdClienteNavigation.NombreCompleto)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Atendido por</th> 
+                        <td>@Html.DisplayFor(model => model.IdEmpleadoNavigation.Nombres) @Html.DisplayFor(model => model.IdEmpleadoNavigation.PrimerApellido) @Html.DisplayFor(model => model.IdEmpleadoNavigation.SegundoApellido)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Producto Vendido</th> 
+                        <td>@Html.DisplayFor(model => model.IdProductoNavigation.Descripcion)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">@Html.DisplayNameFor(model => model.UsuarioRegistro)</th>
+                        <td>@Html.DisplayFor(model => model.UsuarioRegistro)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">@Html.DisplayNameFor(model => model.FechaRegistro)</th>
+                        <td>@Html.DisplayFor(model => model.FechaRegistro)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer action-links">
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning">Editar</a>
+            <a asp-action="Index" class="btn btn-secondary">Volver a la Lista</a>
+            <a href="@Url.Action("PrintDetails", new { id = Model?.Id })" target="_blank" class="btn btn-info">
+                <i class="fas fa-print"></i> Imprimir
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+       
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </script>
+}

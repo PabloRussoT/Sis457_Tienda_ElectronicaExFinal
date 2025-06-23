@@ -1,0 +1,374 @@
+﻿@model WebTIendaElectronica.Models.Ventum
+
+@{
+    ViewData["Title"] = "Crear Venta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<h1 class="mb-4">Crear Venta</h1>
+
+<h4 class="mb-3">Nueva Venta</h4>
+<hr />
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <form asp-action="Create" id="mainVentaForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="card shadow-sm p-3 mb-4">
+                <h5 class="card-title mb-3">Información General de la Venta</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="IdCliente" class="control-label">Cliente</label>
+                            <select asp-for="IdCliente" class="form-control" asp-items="ViewBag.IdCliente"></select>
+                            <span asp-validation-for="IdCliente" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="IdEmpleado" class="control-label">Empleado</label>
+                            <select asp-for="IdEmpleado" class="form-control" asp-items="ViewBag.IdEmpleado"></select>
+                            <span asp-validation-for="IdEmpleado" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Transaccion" class="control-label"></label>
+                    <input asp-for="Transaccion" class="form-control" />
+                    <span asp-validation-for="Transaccion" class="text-danger"></span>
+                </div>
+            </div>
+
+
+            <h4 class="mt-4 mb-3">Añadir Productos</h4>
+            <div class="card shadow-sm p-3 mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="productId" class="control-label">Producto</label>
+                            @* CHANGED ID TO "productId" to match JS selector *@
+                            <select id="productId" class="form-control" asp-items="ViewBag.ProductosList">
+                                <option value="">-- Seleccione un producto --</option> @* Better default text *@
+                            </select>
+
+                            @if (ViewBag.ProductosList == null || ((SelectList)ViewBag.ProductosList).Count() == 0)
+                            {
+                                <span class="text-muted mt-2 d-block">No hay productos disponibles (verifique stock y estado).</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label for="productSaldo" class="control-label">Saldo Disp.</label>
+                            <input type="text" id="productSaldo" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label for="productPrecio" class="control-label">Precio Unitario</label>
+                            <input type="text" id="productPrecio" class="form-control" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="row align-items-end">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="quantity" class="control-label">Cantidad</label>
+                            <input type="number" id="quantity" class="form-control" value="1" min="1" />
+                            <span id="quantityValidation" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" id="addProductBtn" class="btn btn-success w-100">
+                            <i class="fas fa-cart-plus me-2"></i> Añadir Producto
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="mt-4 mb-3">Detalles de la Venta</h4>
+            <div id="validationMessage" class="alert alert-danger d-none" role="alert"></div>
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Total Item</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ventaDetallesTableBody">
+                        <tr><td colspan="5" class="text-center text-muted p-4">No hay productos añadidos a la venta.</td></tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Total General Venta:</strong></td>
+                            <td id="grandTotal" class="text-end">0.00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <input type="hidden" name="ventaDetallesJson" id="ventaDetallesJson" />
+            <input type="hidden" asp-for="Total" id="ventumTotal" />
+
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i> Guardar Venta
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mt-4 text-center">
+    <a asp-action="Index" class="btn btn-secondary">
+        Volver a la Lista
+    </a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // Stores product details added to the table, keyed by productId
+            var selectedProducts = {};
+            // Stores original product data fetched from server (saldo, precioVenta)
+            // This is crucial for correctly tracking available stock after adding/removing items
+            var allProductsData = {};
+
+            function showMessage(message, type = 'danger') {
+                const msgDiv = $('#validationMessage');
+                msgDiv.removeClass('d-none alert-success alert-danger alert-warning alert-info').addClass(`alert-${type}`).text(message);
+                setTimeout(() => {
+                    msgDiv.addClass('d-none');
+                }, 5000);
+            }
+
+            // Function to fetch all product data on page load
+            // This helps in quickly retrieving saldo and precioVenta without multiple AJAX calls
+            // or if you want to use data attributes on options, you'd populate those here.
+            function loadAllProductsData() {
+                $.ajax({
+                    url: '@Url.Action("GetAllProductsData", "Ventas")', // New action needed in Controller
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data) {
+                            data.forEach(p => {
+                                allProductsData[p.id] = { saldo: p.saldo, precioVenta: p.precioVenta };
+                            });
+                            // Trigger change on load to populate initial details if an option is pre-selected
+                            $('#productId').change();
+                        } else {
+                            showMessage('Error al cargar datos de productos.', 'danger');
+                        }
+                    },
+                    error: function () {
+                        showMessage('Error al cargar datos de productos iniciales.', 'danger');
+                    }
+                });
+            }
+
+            // Call this on document ready
+            loadAllProductsData();
+
+
+            // Handle product selection change
+            $('#productId').change(function () {
+                var productId = $(this).val();
+                if (productId && allProductsData[productId]) {
+                    const product = allProductsData[productId];
+                    // Adjust displayed saldo based on what's already in the cart
+                    const quantityInCart = selectedProducts[productId] ? selectedProducts[productId].cantidad : 0;
+                    const effectiveSaldo = product.saldo - quantityInCart;
+
+                    $('#productSaldo').val(effectiveSaldo); // Display adjusted saldo
+                    $('#productPrecio').val(product.precioVenta.toFixed(2));
+                    $('#quantity').attr('max', effectiveSaldo); // Set max quantity based on adjusted saldo
+                    $('#quantityValidation').text('');
+
+                    if (effectiveSaldo <= 0) {
+                        showMessage('Producto sin stock disponible o todo en carrito.', 'warning');
+                        $('#addProductBtn').prop('disabled', true); // Disable add button if no stock
+                    } else {
+                         $('#addProductBtn').prop('disabled', false); // Enable if stock is available
+                    }
+
+                } else {
+                    $('#productSaldo').val('');
+                    $('#productPrecio').val('');
+                    $('#quantity').removeAttr('max');
+                    $('#quantity').val(1); // Reset quantity
+                    $('#quantityValidation').text('');
+                    $('#addProductBtn').prop('disabled', true); // Disable if no product selected
+                }
+            });
+
+
+            // Add Product to details table
+            $('#addProductBtn').click(function () {
+                var productId = $('#productId').val();
+                var productName = $('#productId option:selected').text();
+                var quantity = parseInt($('#quantity').val());
+                var unitPrice = parseFloat($('#productPrecio').val());
+                var availableSaldo = parseFloat($('#productSaldo').val()); // This is already adjusted saldo
+
+                $('#quantityValidation').text(''); // Clear previous validation message
+
+                if (!productId) {
+                    showMessage('Por favor, seleccione un producto.', 'warning');
+                    return;
+                }
+                if (isNaN(quantity) || quantity <= 0) {
+                    showMessage('La cantidad debe ser un número positivo.', 'warning');
+                    return;
+                }
+                if (isNaN(unitPrice)) {
+                    showMessage('Precio unitario no disponible.', 'warning');
+                    return;
+                }
+
+                // Check against the *remaining* available saldo shown in the input
+                if (quantity > availableSaldo) {
+                    $('#quantityValidation').text(`La cantidad excede el saldo disponible (${availableSaldo}).`);
+                    showMessage('La cantidad solicitada excede el saldo disponible.', 'warning');
+                    return;
+                }
+
+                if (selectedProducts[productId]) {
+                    // Update existing product in cart
+                    selectedProducts[productId].cantidad += quantity;
+                    selectedProducts[productId].total = selectedProducts[productId].cantidad * selectedProducts[productId].precioUnitario;
+                } else {
+                    // Add new product to cart
+                    selectedProducts[productId] = {
+                        idProducto: parseInt(productId),
+                        nombreProducto: productName,
+                        cantidad: quantity,
+                        precioUnitario: unitPrice,
+                        total: quantity * unitPrice
+                    };
+                }
+
+                updateVentaDetallesTable();
+                calculateGrandTotal();
+                // Update the displayed saldo immediately after adding product
+                $('#productSaldo').val(availableSaldo - quantity);
+                $('#quantity').val(1); // Reset quantity for next add
+                $('#quantity').attr('max', availableSaldo - quantity); // Update max for next add
+
+                if (availableSaldo - quantity <= 0) {
+                     $('#addProductBtn').prop('disabled', true); // Disable if all stock is in cart
+                }
+                showMessage('Producto añadido a la venta.', 'success');
+            });
+
+
+            // Remove product from details table
+            $(document).on('click', '.remove-item', function () {
+                var productIdToRemove = $(this).data('product-id');
+
+                if (selectedProducts[productIdToRemove]) {
+                    var removedQuantity = selectedProducts[productIdToRemove].cantidad;
+                    delete selectedProducts[productIdToRemove];
+
+                    // Restore saldo in the dropdown's display if this product is currently selected
+                    if ($('#productId').val() == productIdToRemove && allProductsData[productIdToRemove]) {
+                        const originalProductSaldo = allProductsData[productIdToRemove].saldo;
+                        let currentQuantityInCartExcludingRemoved = 0;
+                        $.each(selectedProducts, function(pid, item) {
+                            if (pid == productIdToRemove) {
+                                // This condition will not be met now as it's deleted.
+                                // Re-calculate based on remaining selected products if any.
+                            }
+                        });
+                        const newDisplayedSaldo = originalProductSaldo - currentQuantityInCartExcludingRemoved;
+                        $('#productSaldo').val(newDisplayedSaldo);
+                        $('#quantity').attr('max', newDisplayedSaldo);
+                        $('#addProductBtn').prop('disabled', newDisplayedSaldo <= 0);
+                    }
+                    updateVentaDetallesTable();
+                    calculateGrandTotal();
+                    showMessage('Producto eliminado de la venta.', 'info');
+                }
+            });
+
+
+            function updateVentaDetallesTable() {
+                var tableBody = $('#ventaDetallesTableBody');
+                tableBody.empty(); // Clear existing rows
+
+                if (Object.keys(selectedProducts).length === 0) {
+                    tableBody.append('<tr><td colspan="5" class="text-center text-muted p-4">No hay productos añadidos a la venta.</td></tr>');
+                } else {
+                    $.each(selectedProducts, function (productId, item) {
+                        var row = `
+                            <tr data-product-id="${productId}">
+                                <td>${item.nombreProducto}</td>
+                                <td>${item.cantidad}</td>
+                                <td>${item.precioUnitario.toFixed(2)}</td>
+                                <td>${item.total.toFixed(2)}</td>
+                                <td><button type="button" class="btn btn-danger btn-sm remove-item px-2" data-product-id="${productId}"><i class="fas fa-trash-alt"></i></button></td>
+                            </tr>
+                        `;
+                        tableBody.append(row);
+                    });
+                }
+            }
+
+
+            function calculateGrandTotal() {
+                var grandTotal = 0;
+                $.each(selectedProducts, function (productId, item) {
+                    grandTotal += item.total;
+                });
+                $('#grandTotal').text(grandTotal.toFixed(2));
+                $('#ventumTotal').val(grandTotal.toFixed(2)); // Update the hidden field for model binding
+            }
+
+
+            // Form submission logic
+            $('#mainVentaForm').submit(function (event) {
+                if (Object.keys(selectedProducts).length === 0) {
+                    showMessage('Debe añadir al menos un producto a la venta para guardar.', 'danger');
+                    event.preventDefault(); // Prevent form submission
+                    return;
+                }
+
+                // Prepare the VentaDetalles data for submission
+                var ventaDetallesList = [];
+                $.each(selectedProducts, function (productId, item) {
+                    ventaDetallesList.push({
+                        IdProducto: parseInt(item.idProducto),
+                        Cantidad: item.cantidad,
+                        PrecioUnitario: item.precioUnitario,
+                        Total: item.total
+                        // Note: UsuarioRegistro, FechaRegistro, Estado for VentaDetalle
+                        // are typically set in the backend Controller.
+                    });
+                });
+
+                // Set the JSON string to the hidden input
+                $('#ventaDetallesJson').val(JSON.stringify(ventaDetallesList));
+
+                // The form will now submit normally
+            });
+
+            // Initial table and total calculation (useful if editing an existing sale)
+            updateVentaDetallesTable();
+            calculateGrandTotal();
+        });
+    </script>
+}
